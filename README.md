@@ -31,10 +31,28 @@ generated model without remembering the exact command-line syntax every time.
 - basic automated tests for non-GUI logic
 - repository layout prepared for bundling the generated model executable
 
+## Screenshots
+
+### Default Launcher
+
+![Default launcher](artifacts/launcher-default.png)
+
+### Ready To Run
+
+![Filled launcher](artifacts/launcher-filled.png)
+
+### Running State
+
+![Running launcher](artifacts/launcher-running.png)
+
 ## Repository Structure
 
 ```text
 .
+├── artifacts/
+│   ├── launcher-default.png
+│   ├── launcher-filled.png
+│   └── launcher-running.png
 ├── main.py
 ├── model_runtime/
 │   └── README.md

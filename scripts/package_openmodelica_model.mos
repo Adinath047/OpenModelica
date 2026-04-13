@@ -1,0 +1,10 @@
+loadModel(Modelica);
+getErrorString();
+
+// Update this path to the downloaded package before running.
+loadFile("TwoTanks/package.mo");
+getErrorString();
+
+buildModel(TwoTanks.TwoConnectedTanks);
+getErrorString();
+

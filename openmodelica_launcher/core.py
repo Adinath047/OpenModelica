@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import os
+import shlex
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Sequence
+
+MAX_STOP_TIME = 5
 
 
 class ValidationError(ValueError):
@@ -40,14 +44,19 @@ def build_request(
         raise ValidationError("The selected application does not exist.")
     if not path.is_file():
         raise ValidationError("The selected path must be a file.")
+    if not _is_launchable_file(path):
+        raise ValidationError(
+            "The selected application is not executable. "
+            "Check its permissions or choose a runnable file."
+        )
 
     start_time = _parse_integer(start_time_text, "Start time")
     stop_time = _parse_integer(stop_time_text, "Stop time")
 
     if start_time < 0:
         raise ValidationError("Start time must be greater than or equal to 0.")
-    if stop_time >= 5:
-        raise ValidationError("Stop time must be less than 5.")
+    if stop_time >= MAX_STOP_TIME:
+        raise ValidationError(f"Stop time must be less than {MAX_STOP_TIME}.")
     if start_time >= stop_time:
         raise ValidationError("Start time must be less than stop time.")
 
@@ -70,5 +79,10 @@ def _parse_integer(value: str, label: str) -> int:
 
 def format_command(command: Sequence[str]) -> str:
     """Return a user-friendly command preview string."""
-    return " ".join(command)
+    return shlex.join(command)
 
+
+def _is_launchable_file(path: Path) -> bool:
+    if os.name == "nt":
+        return path.suffix.lower() in {".exe", ".bat", ".cmd", ".com"}
+    return os.access(path, os.X_OK)

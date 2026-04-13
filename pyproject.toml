@@ -11,7 +11,24 @@ requires-python = ">=3.10"
 dependencies = ["PyQt6>=6.5"]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0"]
+dev = ["black>=24.0", "pytest>=8.0", "ruff>=0.6.0"]
 
 [project.scripts]
 openmodelica-launcher = "main:main"
+
+[tool.setuptools.packages.find]
+include = ["openmodelica_launcher*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]

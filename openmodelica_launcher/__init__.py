@@ -1,2 +1,1 @@
 """OpenModelica launcher application package."""
-

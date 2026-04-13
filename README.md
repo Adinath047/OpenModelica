@@ -25,6 +25,9 @@ generated model without remembering the exact command-line syntax every time.
 - object-oriented design with GUI and validation logic separated
 - command generation using the OpenModelica `-override` simulation flag
 - non-blocking execution using Qt's process API, so the window stays responsive
+- start/stop controls and disabled inputs while a simulation is running
+- remembers the last selected executable between launches
+- launcher activity is logged to `logs/launcher.log`
 - basic automated tests for non-GUI logic
 - repository layout prepared for bundling the generated model executable
 
@@ -79,6 +82,9 @@ The launcher enforces the test condition required in the task:
 If validation fails, the application shows an error dialog and does not launch
 the executable.
 
+The launcher also checks that the selected file is actually runnable before it
+tries to start the simulation.
+
 ## Setup Instructions
 
 ### 1. Install Python dependencies
@@ -108,6 +114,14 @@ If you also want the development test dependency, install:
 
 ```bash
 ./.venv/bin/python -m unittest discover -s tests -v
+```
+
+If you installed the optional development extras, you can also run:
+
+```bash
+./.venv/bin/pytest
+./.venv/bin/ruff check .
+./.venv/bin/black --check .
 ```
 
 ### 4. Optional local demo

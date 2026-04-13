@@ -1,14 +1,22 @@
 """Tests for launcher validation and command generation."""
 
+# ruff: noqa: E402
+
 from __future__ import annotations
 
 import contextlib
 import io
+import os
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 import main
 from openmodelica_launcher.core import ValidationError, build_request, format_command
@@ -21,6 +29,7 @@ class BuildRequestTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             executable = Path(temp_dir) / "TwoConnectedTanks"
             executable.write_text("#!/bin/sh\n", encoding="utf-8")
+            executable.chmod(0o755)
 
             request = build_request(str(executable), "0", "4")
 
@@ -44,6 +53,7 @@ class BuildRequestTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             executable = Path(temp_dir) / "TwoConnectedTanks"
             executable.write_text("#!/bin/sh\n", encoding="utf-8")
+            executable.chmod(0o755)
 
             for start_time, stop_time, message in test_cases:
                 with self.subTest(start_time=start_time, stop_time=stop_time):
@@ -56,11 +66,24 @@ class BuildRequestTests(unittest.TestCase):
             with self.assertRaisesRegex(ValidationError, "does not exist"):
                 build_request(str(missing_path), "0", "4")
 
+    @unittest.skipIf(
+        os.name == "nt",
+        "POSIX execute bit check does not apply on Windows.",
+    )
+    def test_build_request_requires_executable_permissions(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            executable = Path(temp_dir) / "TwoConnectedTanks"
+            executable.write_text("#!/bin/sh\n", encoding="utf-8")
+            executable.chmod(0o644)
+
+            with self.assertRaisesRegex(ValidationError, "not executable"):
+                build_request(str(executable), "0", "4")
+
     def test_format_command_returns_readable_preview(self) -> None:
-        command = ["TwoConnectedTanks", "-override=startTime=0,stopTime=4"]
+        command = ["Two Connected Tanks", "-override=startTime=0,stopTime=4"]
         self.assertEqual(
             format_command(command),
-            "TwoConnectedTanks -override=startTime=0,stopTime=4",
+            "'Two Connected Tanks' -override=startTime=0,stopTime=4",
         )
 
 
